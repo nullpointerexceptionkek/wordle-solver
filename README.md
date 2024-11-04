@@ -1,6 +1,6 @@
 # Wordle solver
 
-prob one of the most advance wordle solver
+This wordle solver requires no human interaction; it will automatically detect the board and input the guesses. Follow the instruction below. 
 
 ![demo](/image.png)
 
