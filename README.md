@@ -10,11 +10,12 @@ If you are interested, I also made an automatic spelling bee solver; check my re
 
 Paste the entire [`paste.js`](/paste.js) into your browser console. You can open the console by pressing `F12`.
 
-**Note:** This script is only guaranteed to work on nytimes.com
+**Note:** This script is only guaranteed to work on nytimes.com and wordleunlimited.org
 
 ## Features
 
 1. Everything is automatic
+2. 96% win rate with most guesses on 5 or less, you can prob improve this by using a wordle specific dictionary
 
 ## Note
 This script fetches the dictionary from a popular repo: `https://raw.githubusercontent.com/words/an-array-of-english-words/refs/heads/master/index.json`

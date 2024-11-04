@@ -1,4 +1,4 @@
-(async function solveWordle(keypressDelay = 500, submissionDelay = 4000) {
+(async function solveWordle(keypressDelay = 50, submissionDelay = 3500) {
   // Fetch the list of words
   async function fetchWordList() {
     try {
@@ -10,7 +10,7 @@
         return [];
       }
       const words = await response.json();
-      return words.filter((word) => word.length === 5);//only 5 letter
+      return words.filter((word) => word.length === 5); //only 5 letter
     } catch (error) {
       console.error("Error:", error);
       return [];
@@ -50,8 +50,23 @@ rows: [
   ]
   */
   function parseBoard() {
-    const board = document.querySelector(".Board-module_board__jeoPS");
-    const rows = board.querySelectorAll(".Row-module_row__pwpBq");
+    let board, rows;
+
+    //nytimes
+    board = document.querySelector(".Board-module_board__jeoPS");
+    if (board) {
+      rows = board.querySelectorAll(".Row-module_row__pwpBq");
+    } else {
+      //wordleunlimated
+      const gameApp = document.querySelector("game-app")?.shadowRoot;
+      board = gameApp ? gameApp.querySelector("#board") : null;
+      rows = board ? board.querySelectorAll("game-row") : null;
+    }
+
+    if (!rows) {
+      console.error("Board or rows not found!");
+      return null;
+    }
 
     const boardData = {
       rows: [],
@@ -64,10 +79,21 @@ rows: [
 
     rows.forEach((row) => {
       const rowData = [];
-      const tiles = row.querySelectorAll("[data-testid='tile']");
+      const tiles = board.classList.contains("Board-module_board__jeoPS")
+        ? row.querySelectorAll("[data-testid='tile']")
+        : row.shadowRoot
+        ? row.shadowRoot.querySelectorAll("game-tile")
+        : [];
+
       tiles.forEach((tile, index) => {
-        const letter = tile.innerText.toLowerCase();
-        const state = tile.getAttribute("data-state");
+        const letter = board.classList.contains("Board-module_board__jeoPS")
+          ? tile.innerText.toLowerCase()
+          : tile.getAttribute("letter")?.toLowerCase() || "";
+
+        const state = board.classList.contains("Board-module_board__jeoPS")
+          ? tile.getAttribute("data-state")
+          : tile.getAttribute("evaluation") || "empty";
+
         if (letter) {
           rowData.push({ letter, state });
           if (state === "absent") {
