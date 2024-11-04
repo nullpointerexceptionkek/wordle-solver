@@ -1,6 +1,8 @@
 # Wordle solver
 
-This wordle solver requires no human interaction; it will automatically detect the board and input the guesses. Follow the instruction below. 
+This wordle solver requires no human interaction; it will automatically detect the board and input the guesses. Follow the instructions below. 
+
+If you are interested, I also made an automatic spelling bee solver; check my repos.
 
 ![demo](/image.png)
 
