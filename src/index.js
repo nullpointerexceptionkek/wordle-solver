@@ -177,13 +177,58 @@ rows: [
     });
   }
 
-  // THe best wordle guess are teh words with no repeating characters, this function ranks the possible word by uniqueness
-  function rankWordsByUniqueness(wordList) {
-    return wordList.sort((a, b) => {
+  // THe best wordle guess are teh words with no repeating characters, this function ranks the possible word by uniqueness, if they have the same uniqueness, rank by popularity
+  async function rankWordsByUniqueness(wordList) {
+    const uniqueRankedWords = wordList.sort((a, b) => {
       const uniqueA = new Set(a).size;
       const uniqueB = new Set(b).size;
       return uniqueB - uniqueA;
     });
+
+    const topUniqueWords = uniqueRankedWords.filter(
+      (word) => new Set(word).size === new Set(uniqueRankedWords[0]).size
+    );
+
+    if (topUniqueWords.length > 1) {
+      const popularWord = await getMostPopularWord(topUniqueWords);
+      return popularWord;
+    }
+
+    return topUniqueWords[0];
+  }
+
+  async function getMostPopularWord(words) {
+    try {
+      const promises = words.map((word) =>
+        fetch(`https://api.datamuse.com/words?sp=${word}&md=f`).then((res) =>
+          res.json()
+        )
+      );
+      console.log("awaiting for word popularity api")
+      const results = await Promise.all(promises);
+
+      console.log(results);
+
+      const wordFrequencies = results.reduce((acc, entry) => {
+        if (entry[0] && entry[0].tags) {
+          const freqTag = entry[0].tags.find((tag) => tag.startsWith("f:"));
+          if (freqTag) {
+            const frequency = parseFloat(freqTag.slice(2));
+            acc[entry[0].word] = frequency;
+          }
+        }
+        return acc;
+      }, {});
+
+      words.sort(
+        (a, b) => (wordFrequencies[b] || 0) - (wordFrequencies[a] || 0)
+      );
+
+      return words[0];
+    } catch (error) {
+      console.error("Error fetching frequency data:", error);
+      return words[0];
+    }
   }
 
   function simulateKeyPress(char) {
@@ -245,7 +290,7 @@ rows: [
   const wordList = await fetchWordList(); //dictionary
   let boardData = parseBoard(); //consider existing user input
   let possibleWords = filterWords(wordList, boardData);
-  let currentGuess = "tales"; //default first guess
+  let currentGuess = "crane"; //default first guess
   let isFirstAttempt = true;
 
   for (let attempt = 0; attempt < 6; attempt++) {
@@ -254,12 +299,12 @@ rows: [
       row.every((tile) => tile.state === "empty")
     );
 
-    //do not guess tales again if the board is not empty
+    //do not guess crane again if the board is not empty
     if (isFirstAttempt && boardIsEmpty) {
-      currentGuess = "tales";
+      currentGuess = "crane";
       isFirstAttempt = false;
     } else {
-      currentGuess = rankWordsByUniqueness(possibleWords)[0] || "tales";
+      currentGuess = await rankWordsByUniqueness(possibleWords) || "crane";
     }
 
     console.log(`Attempt ${attempt + 1}: Trying "${currentGuess}"`);
@@ -273,7 +318,7 @@ rows: [
     if (!wordAccepted) {
       console.log(`Word "${currentGuess}" was not accepted. Trying next word.`);
       possibleWords = possibleWords.filter((word) => word !== currentGuess);
-      currentGuess = rankWordsByUniqueness(possibleWords)[0] || "tales";
+      currentGuess = rankWordsByUniqueness(possibleWords)[0] || "crane";
       continue;
     }
 

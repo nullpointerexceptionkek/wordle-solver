@@ -15,12 +15,19 @@ Paste the entire [`paste.js`](/paste.js) into your browser console. You can open
 ## Features
 
 1. Everything is automatic
-2. 96% win rate with most guesses on 5 or less, you can prob improve this by using a wordle specific dictionary
+2. 99% win rate with most guesses on 4 or less, you can prob improve this by using a wordle specific dictionary
 
 ## Note
 This script fetches the dictionary from a popular repo: `https://raw.githubusercontent.com/words/an-array-of-english-words/refs/heads/master/index.json`
 
 I have no control over this repo, and you should always check if it contains the actual word list file
+
+
+# algotherm
+1. Always start with crane
+2. always guess the word that matches the feedback with the most uniqueness and popularity
+3. type the answer
+4. repeat
 
 ## License
 
